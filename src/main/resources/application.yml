@@ -1,0 +1,31 @@
+jwt:
+  token:
+    validity: 18000
+    prefix: Bearer
+  signing.key: MyKey
+  authorities.key: roles
+  header.string: Authorization
+  secret-key: 357638792F423F4428472B4B6250655368566D597133743677397A2443264629
+
+spring:
+  application.name: wheelshare
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/test_db
+    username: root
+    password: testpass123
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties.hibernate:
+      format_sql: true
+      mvc.hiddenmethod.enabled: true
+      dialect: org.hibernate.dialect.MySQL8Dialect
+    database-platform: org.hibernate.dialect.MySQL8InnoDBDialect
+  rsocket:
+    server:
+      port: 8080
+server:
+  error:
+    include-message: always
