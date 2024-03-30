@@ -1,0 +1,6 @@
+services:
+  cassandra-licenta:
+    image: cassandra
+    container_name: cassandra-licenta
+    ports:
+      - "9043:9042"

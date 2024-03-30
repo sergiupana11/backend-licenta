@@ -1,40 +1,27 @@
 package org.unstpb.wheelshare.entity
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.Inheritance
-import jakarta.persistence.InheritanceType
-import jakarta.persistence.Table
-import org.hibernate.annotations.CreationTimestamp
+import org.springframework.data.cassandra.core.cql.PrimaryKeyType
+import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
+import org.springframework.data.cassandra.core.mapping.Table
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import java.util.Date
+import java.util.UUID
 
-@Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "users")
-class User(
-    @Column(nullable = false)
+@Table("user")
+data class User(
+    @PrimaryKeyColumn(type = PrimaryKeyType.PARTITIONED, name = "email", ordinal = 1)
     var email: String,
-    @Column(nullable = false)
     private var password: String,
-    @Column(nullable = false, name = "first_name")
     var firstName: String,
-    @Column(nullable = false, name = "last_name")
     var lastName: String,
-    @Enumerated(EnumType.STRING)
+    var gender: Gender,
+    var phoneNumber: String,
     var role: UserRole,
-    @Column(nullable = false, name = "created_at")
-    @CreationTimestamp
+    var drivingLicenceNumber: String? = null,
     var createdAt: Date,
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    @PrimaryKeyColumn(type = PrimaryKeyType.PARTITIONED, name = "id", ordinal = 0)
+    var id: UUID,
 ) : UserDetails {
     override fun getAuthorities(): MutableList<SimpleGrantedAuthority> {
         return mutableListOf(SimpleGrantedAuthority(role.name))

@@ -2,7 +2,6 @@ package org.unstpb.wheelshare.service
 
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.unstpb.wheelshare.dto.AuthenticationRequest
@@ -11,9 +10,10 @@ import org.unstpb.wheelshare.dto.RegisterRequest
 import org.unstpb.wheelshare.entity.User
 import org.unstpb.wheelshare.entity.UserRole
 import org.unstpb.wheelshare.exception.UserAlreadyExistsException
+import org.unstpb.wheelshare.exception.UserNotFoundException
 import org.unstpb.wheelshare.repository.UserRepository
 import java.time.Instant
-import java.util.Date
+import java.util.*
 
 @Service
 class AuthenticationService(
@@ -32,8 +32,12 @@ class AuthenticationService(
             passwordEncoder.encode(request.password),
             request.firstName,
             request.lastName,
-            UserRole.USER,
-            Date.from(Instant.now()),
+            request.gender,
+            request.phoneNumber,
+            createdAt = Date.from(Instant.now()),
+            role = UserRole.USER,
+            drivingLicenceNumber = request.drivingLicenceNumber,
+            id = UUID.randomUUID(),
         ).let {
             userRepository.save(it)
 
@@ -49,7 +53,7 @@ class AuthenticationService(
             ),
         )
 
-        (userRepository.findByEmail(authenticationRequest.email) ?: throw UsernameNotFoundException("User not found")).let {
+        (userRepository.findByEmail(authenticationRequest.email) ?: throw UserNotFoundException()).let {
             return AuthenticationResponse(jwtService.generateToken(it))
         }
     }

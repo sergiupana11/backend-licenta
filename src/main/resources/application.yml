@@ -9,23 +9,16 @@ jwt:
 
 spring:
   application.name: wheelshare
-  datasource:
-    driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/test_db
-    username: root
-    password: testpass123
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-    open-in-view: false
-    properties.hibernate:
-      format_sql: true
-      mvc.hiddenmethod.enabled: true
-      dialect: org.hibernate.dialect.MySQL8Dialect
-    database-platform: org.hibernate.dialect.MySQL8InnoDBDialect
   rsocket:
     server:
       port: 8080
+  cassandra:
+    contact-points: 127.0.0.1
+    port: 9043
+    keyspace-name: wheelshare
+    local-datacenter: datacenter1
+    schema-action: CREATE_IF_NOT_EXISTS
+
 server:
   error:
     include-message: always
