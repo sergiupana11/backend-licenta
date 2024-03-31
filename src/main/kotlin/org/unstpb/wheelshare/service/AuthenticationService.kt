@@ -8,12 +8,9 @@ import org.unstpb.wheelshare.dto.AuthenticationRequest
 import org.unstpb.wheelshare.dto.AuthenticationResponse
 import org.unstpb.wheelshare.dto.RegisterRequest
 import org.unstpb.wheelshare.entity.User
-import org.unstpb.wheelshare.entity.UserRole
 import org.unstpb.wheelshare.exception.UserAlreadyExistsException
 import org.unstpb.wheelshare.exception.UserNotFoundException
 import org.unstpb.wheelshare.repository.UserRepository
-import java.time.Instant
-import java.util.*
 
 @Service
 class AuthenticationService(
@@ -27,18 +24,7 @@ class AuthenticationService(
             throw UserAlreadyExistsException()
         }
 
-        User(
-            request.email,
-            passwordEncoder.encode(request.password),
-            request.firstName,
-            request.lastName,
-            request.gender,
-            request.phoneNumber,
-            createdAt = Date.from(Instant.now()),
-            role = UserRole.USER,
-            drivingLicenceNumber = request.drivingLicenceNumber,
-            id = UUID.randomUUID(),
-        ).let {
+        User(request, passwordEncoder.encode(request.password)).let {
             userRepository.save(it)
 
             return AuthenticationResponse(jwtService.generateToken(it))
@@ -53,8 +39,10 @@ class AuthenticationService(
             ),
         )
 
-        (userRepository.findByEmail(authenticationRequest.email) ?: throw UserNotFoundException()).let {
-            return AuthenticationResponse(jwtService.generateToken(it))
-        }
+        userRepository.findByEmail(authenticationRequest.email)?.let {
+            return AuthenticationResponse(
+                jwtService.generateToken(it),
+            )
+        } ?: throw UserNotFoundException()
     }
 }

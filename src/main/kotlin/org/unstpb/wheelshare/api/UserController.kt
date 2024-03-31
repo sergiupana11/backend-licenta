@@ -1,5 +1,7 @@
 package org.unstpb.wheelshare.api
 
+import jakarta.validation.Valid
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -11,6 +13,7 @@ import org.unstpb.wheelshare.service.AuthenticationService
 
 @RestController
 @RequestMapping("/api/v1/users")
+@Validated
 class UserController(
     private val authenticationService: AuthenticationService,
 ) {
@@ -21,6 +24,6 @@ class UserController(
 
     @PostMapping
     fun register(
-        @RequestBody registerRequest: RegisterRequest,
+        @RequestBody @Valid registerRequest: RegisterRequest,
     ): AuthenticationResponse = authenticationService.register(registerRequest)
 }

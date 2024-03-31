@@ -1,24 +1,21 @@
 package org.unstpb.wheelshare.dto
 
-import jakarta.validation.constraints.Email
-import jakarta.validation.constraints.Max
-import jakarta.validation.constraints.Min
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.Size
 import org.unstpb.wheelshare.entity.Gender
+import javax.validation.constraints.Email
+import javax.validation.constraints.NotBlank
+import javax.validation.constraints.Size
 
-class RegisterRequest(
+data class RegisterRequest(
     @Email
     @NotBlank
     val email: String,
-    @Min(value = 6)
-    @Max(value = 20)
+    @Size(min = 6, max = 20)
     @NotBlank
     val password: String,
-    @Max(value = 50)
+    @Size(max = 50)
     @NotBlank
     val firstName: String,
-    @Max(value = 50)
+    @Size(max = 50)
     @NotBlank
     val lastName: String,
     @Size(min = 10, max = 10)

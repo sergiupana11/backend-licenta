@@ -8,11 +8,11 @@ import java.util.UUID
 
 @Table("promotion")
 data class Promotion(
+    @PrimaryKeyColumn(type = PrimaryKeyType.PARTITIONED, ordinal = 1)
+    var affectedCarId: UUID,
+    @PrimaryKeyColumn(type = PrimaryKeyType.PARTITIONED, ordinal = 0)
+    var id: UUID,
     var value: Int,
     var validFrom: LocalDateTime,
     var validUntil: LocalDateTime,
-    @PrimaryKeyColumn(type = PrimaryKeyType.PARTITIONED, name = "affected_car", ordinal = 1)
-    var affectedCar: UUID,
-    @PrimaryKeyColumn(type = PrimaryKeyType.PARTITIONED, name = "id", ordinal = 0)
-    var id: UUID,
 )
