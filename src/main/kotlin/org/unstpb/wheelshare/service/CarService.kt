@@ -14,7 +14,7 @@ class CarService(
 ) {
     fun getAllCarsForUser(username: String): List<Car> {
         userRepository.findByEmail(username)?.let {
-            return carRepository.findAllByUserId(it.id) ?: listOf()
+            return carRepository.findAllByOwnerId(it.id)
         } ?: throw UserNotFoundException()
     }
 

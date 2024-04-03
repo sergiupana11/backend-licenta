@@ -1,10 +1,10 @@
 package org.unstpb.wheelshare.entity
 
-import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Indexed
-import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
+import org.springframework.data.cassandra.core.mapping.PrimaryKey
 import org.springframework.data.cassandra.core.mapping.Table
 import org.unstpb.wheelshare.dto.AddNewCarRequest
+import org.unstpb.wheelshare.entity.enums.FuelType
 import java.util.UUID
 
 // TODO: calculate average rating and get reviews on the fly
@@ -12,20 +12,19 @@ import java.util.UUID
 @Table("cars")
 data class Car(
     // TODO: add images
-    @PrimaryKeyColumn(type = PrimaryKeyType.PARTITIONED, ordinal = 1)
-    @Indexed
-    var userId: UUID,
-    @PrimaryKeyColumn(type = PrimaryKeyType.PARTITIONED, ordinal = 0)
+    @PrimaryKey
     var id: UUID,
+    @Indexed
+    var ownerId: UUID,
     val brand: String,
     val model: String,
     val fuelType: FuelType,
     val horsepower: Int,
     var description: String,
 ) {
-    constructor(userId: UUID, newCarRequest: AddNewCarRequest) : this(
-        userId,
+    constructor(ownerId: UUID, newCarRequest: AddNewCarRequest) : this(
         UUID.randomUUID(),
+        ownerId,
         newCarRequest.brand,
         newCarRequest.model,
         newCarRequest.fuelType,

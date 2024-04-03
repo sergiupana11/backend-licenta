@@ -3,7 +3,7 @@ package org.unstpb.wheelshare.dto
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
-import org.unstpb.wheelshare.entity.FuelType
+import org.unstpb.wheelshare.entity.enums.FuelType
 
 class AddNewCarRequest(
     @NotBlank

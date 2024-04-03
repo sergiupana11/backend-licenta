@@ -7,6 +7,8 @@ import org.springframework.data.cassandra.core.mapping.Table
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.unstpb.wheelshare.dto.RegisterRequest
+import org.unstpb.wheelshare.entity.enums.Gender
+import org.unstpb.wheelshare.entity.enums.UserRole
 import java.time.Instant
 import java.util.Date
 import java.util.UUID

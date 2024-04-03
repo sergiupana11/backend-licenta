@@ -10,7 +10,7 @@ import java.util.UUID
 data class Admin(
     @PrimaryKeyColumn(type = PrimaryKeyType.PARTITIONED, ordinal = 0)
     val id: UUID,
-    @PrimaryKeyColumn(type = PrimaryKeyType.PARTITIONED, ordinal = 0)
+    @PrimaryKeyColumn(type = PrimaryKeyType.PARTITIONED, ordinal = 1)
     @Indexed
     var email: String,
     var password: String,

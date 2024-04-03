@@ -1,20 +1,16 @@
 package org.unstpb.wheelshare.dto
 
-import org.unstpb.wheelshare.entity.Gender
-import javax.validation.constraints.Email
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.Size
+import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
+import org.springframework.validation.annotation.Validated
+import org.unstpb.wheelshare.entity.enums.Gender
 
+@Validated
 data class RegisterRequest(
-    @Email
-    @NotBlank
-    val email: String,
-    @Size(min = 6, max = 20)
-    @NotBlank
-    val password: String,
-    @Size(max = 50)
-    @NotBlank
-    val firstName: String,
+    @field:[Email NotBlank] val email: String,
+    @field:[Size(min = 6, max = 20) NotBlank] val password: String,
+    @field:[Size(max = 50) NotBlank] val firstName: String,
     @Size(max = 50)
     @NotBlank
     val lastName: String,

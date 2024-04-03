@@ -1,4 +1,4 @@
-package org.unstpb.wheelshare.entity
+package org.unstpb.wheelshare.entity.enums
 
 enum class Gender {
     MALE,

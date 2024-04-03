@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
+import org.unstpb.wheelshare.utils.BEARER
 import java.time.Instant
 import java.util.Date
 import java.util.function.Function
@@ -20,7 +21,7 @@ class JwtService(
     val jwtExpiration: Long,
 ) {
     fun extractUsername(token: String): String {
-        return extractClaim(token, Claims::getSubject)
+        return extractClaim(token.substringAfter(BEARER), Claims::getSubject)
     }
 
     fun <T> extractClaim(
