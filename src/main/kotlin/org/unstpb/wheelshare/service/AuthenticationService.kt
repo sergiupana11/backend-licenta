@@ -27,7 +27,7 @@ class AuthenticationService(
         User(request, passwordEncoder.encode(request.password)).let {
             userRepository.save(it)
 
-            return AuthenticationResponse(jwtService.generateToken(it))
+            return AuthenticationResponse(jwtService.generateToken(it), it.firstName)
         }
     }
 
@@ -42,6 +42,7 @@ class AuthenticationService(
         userRepository.findByEmail(authenticationRequest.email)?.let {
             return AuthenticationResponse(
                 jwtService.generateToken(it),
+                it.firstName,
             )
         } ?: throw UserNotFoundException()
     }

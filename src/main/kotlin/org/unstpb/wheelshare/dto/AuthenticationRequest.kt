@@ -4,8 +4,8 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Size
 
 class AuthenticationRequest(
-    @Email
+    @field:Email
     val email: String,
-    @Size(min = 6, max = 20)
+    @field:Size(min = 6, max = 20)
     val password: String,
 )

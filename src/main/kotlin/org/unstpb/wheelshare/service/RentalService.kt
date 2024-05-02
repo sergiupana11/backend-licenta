@@ -1,5 +1,7 @@
 package org.unstpb.wheelshare.service
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.unstpb.wheelshare.dto.NewRentalRequest
 import org.unstpb.wheelshare.dto.RentalRequestSubmitAction
@@ -20,6 +22,7 @@ class RentalService(
     private val rentalRepository: RentalRepository,
     private val userRepository: UserRepository,
     private val carRepository: CarRepository,
+    private val logger: Logger = LoggerFactory.getLogger(RentalService::class.java),
 ) {
     fun addNewRental(
         username: String,
@@ -27,14 +30,22 @@ class RentalService(
     ): Rental {
         val user = userRepository.findByEmail(username) ?: throw UserNotFoundException()
 
-        carRepository.findById(newRentalRequest.carId).orElseThrow {
-            CarNotFoundException()
-        }
+        logger.info("User with id: ${user.id}, made rental request for car with id: ${newRentalRequest.carId}")
+
+        val car =
+            carRepository.findById(newRentalRequest.carId).orElseThrow {
+                CarNotFoundException()
+            }
+
+        logger.info("Owner id: ${car.ownerId}")
+
+        // TODO: check if car is available in that timeframe
 
         Rental(
             UUID.randomUUID(),
             newRentalRequest.carId,
             user.id,
+            car.ownerId,
             newRentalRequest.startDate,
             newRentalRequest.endDate,
             RentalStatus.PENDING,
@@ -44,10 +55,15 @@ class RentalService(
     }
 
     fun getAllRentalsForUser(username: String): List<Rental> {
-        userRepository.findByEmail(username)?.let {
-            rentalRepository.findAllByRenterId(it.id)
-        } ?: UserNotFoundException()
-        return mutableListOf()
+        val user = userRepository.findByEmail(username) ?: throw UserNotFoundException()
+
+        val myRentals =
+            listOf(
+                rentalRepository.findAllByRenterId(user.id),
+                rentalRepository.findAllByOwnerId(user.id),
+            ).flatten()
+
+        return myRentals
     }
 
     fun acceptOrDeclineRentalStatus(

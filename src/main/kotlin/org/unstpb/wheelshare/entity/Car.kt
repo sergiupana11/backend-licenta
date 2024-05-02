@@ -21,6 +21,7 @@ data class Car(
     val fuelType: FuelType,
     val horsepower: Int,
     var description: String,
+    var price: Int,
 ) {
     constructor(ownerId: UUID, newCarRequest: AddNewCarRequest) : this(
         UUID.randomUUID(),
@@ -30,5 +31,6 @@ data class Car(
         newCarRequest.fuelType,
         newCarRequest.horsepower,
         newCarRequest.description,
+        newCarRequest.price,
     )
 }

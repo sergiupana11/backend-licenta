@@ -4,9 +4,12 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
+import org.unstpb.wheelshare.exception.JwtExpiredException
 import org.unstpb.wheelshare.utils.BEARER
 import java.time.Instant
 import java.util.Date
@@ -19,17 +22,22 @@ class JwtService(
     val secretKey: String,
     @Value("\${jwt.token.validity}")
     val jwtExpiration: Long,
+    private val logger: Logger = LoggerFactory.getLogger(JwtService::class.java),
 ) {
     fun extractUsername(token: String): String {
-        return extractClaim(token.substringAfter(BEARER), Claims::getSubject)
+        try {
+            return extractClaim(token.substringAfter(BEARER), Claims::getSubject)
+        } catch (e: Exception) {
+            logger.error(e.message)
+            throw JwtExpiredException()
+        }
     }
 
     fun <T> extractClaim(
         token: String,
         claimsResolver: Function<Claims, T>,
     ): T {
-        val claims = extractAllClaims(token)
-        return claimsResolver.apply(claims)
+        return claimsResolver.apply(extractAllClaims(token))
     }
 
     fun generateToken(userDetails: UserDetails) = generateToken(mutableMapOf(), userDetails)

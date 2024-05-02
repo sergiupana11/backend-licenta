@@ -12,6 +12,8 @@ interface RentalRepository : CrudRepository<Rental, UUID> {
 
     fun findAllByRenterId(renterId: UUID): List<Rental>
 
+    fun findAllByOwnerId(ownerId: UUID): List<Rental>
+
     // Do I need this?
     fun findAllByStartDateAfterAndEndDateBefore(
         startDate: LocalDateTime,

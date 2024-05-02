@@ -1,20 +1,23 @@
 package org.unstpb.wheelshare.dto
 
-import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
 import org.unstpb.wheelshare.entity.enums.FuelType
 
 class AddNewCarRequest(
-    @NotBlank
+    @field:NotBlank
     val brand: String,
-    @NotBlank
+    @field:NotBlank
     val model: String,
-    @NotBlank
+    @field:NotBlank
     val fuelType: FuelType,
-    @Min(1)
+    @field:Min(1)
     val horsepower: Int,
-    @NotBlank
-    @Max(1000)
-    val description: String,
+    @field:[
+    NotBlank Size(max = 1000)
+    ] val description: String,
+    @field:[
+    NotBlank Min(1)
+    ] val price: Int,
 )
