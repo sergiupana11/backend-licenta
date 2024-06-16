@@ -5,4 +5,5 @@ enum class RentalStatus {
     ACCEPTED,
     COMPLETED,
     DECLINED,
+    CANCELLED,
 }

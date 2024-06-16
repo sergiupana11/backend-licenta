@@ -1,13 +1,14 @@
 package org.unstpb.wheelshare.entity
 
-import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Indexed
-import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
+import org.springframework.data.cassandra.core.mapping.PrimaryKey
 import org.springframework.data.cassandra.core.mapping.Table
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
+import org.unstpb.wheelshare.constants.Constants
 import org.unstpb.wheelshare.dto.RegisterRequest
 import org.unstpb.wheelshare.entity.enums.Gender
+import org.unstpb.wheelshare.entity.enums.InsuranceLevel
 import org.unstpb.wheelshare.entity.enums.UserRole
 import java.time.Instant
 import java.util.Date
@@ -15,9 +16,8 @@ import java.util.UUID
 
 @Table("user")
 data class User(
-    @PrimaryKeyColumn(type = PrimaryKeyType.PARTITIONED, ordinal = 0)
+    @PrimaryKey
     var id: UUID,
-    @PrimaryKeyColumn(type = PrimaryKeyType.PARTITIONED, ordinal = 1)
     @Indexed
     var email: String,
     private var password: String,
@@ -28,6 +28,7 @@ data class User(
     var role: UserRole,
     var drivingLicenceNumber: String? = null,
     var createdAt: Date,
+    var insuranceLevel: InsuranceLevel,
 ) : UserDetails {
     constructor(registerRequest: RegisterRequest, encodedPassword: String) : this(
         UUID.randomUUID(),
@@ -37,9 +38,10 @@ data class User(
         registerRequest.lastName,
         registerRequest.gender,
         registerRequest.phoneNumber,
-        UserRole.USER,
+        if (registerRequest.email == Constants.ADMIN_EMAIL) UserRole.ADMIN else UserRole.USER,
         registerRequest.drivingLicenceNumber,
         Date.from(Instant.now()),
+        InsuranceLevel.B0,
     )
 
     override fun getAuthorities(): MutableList<SimpleGrantedAuthority> {
@@ -57,4 +59,6 @@ data class User(
     override fun isCredentialsNonExpired(): Boolean = true
 
     override fun isEnabled(): Boolean = true
+
+    fun fullName() = "$firstName $lastName"
 }

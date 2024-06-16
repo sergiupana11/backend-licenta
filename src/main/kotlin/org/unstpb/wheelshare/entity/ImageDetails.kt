@@ -5,14 +5,15 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKey
 import org.springframework.data.cassandra.core.mapping.Table
 import java.util.UUID
 
-// TODO: I think I can delete this
-@Table("admin")
-data class Admin(
+@Table("image_details")
+data class ImageDetails(
     @PrimaryKey
-    val id: UUID,
+    var id: UUID,
     @Indexed
-    var email: String,
-    var password: String,
-    var firstName: String,
-    var lastName: String,
+    val carId: UUID?,
+    @Indexed
+    val personId: UUID?,
+    val fileUri: String,
+    val fileDownloadUri: String,
+    val fileSize: Long,
 )

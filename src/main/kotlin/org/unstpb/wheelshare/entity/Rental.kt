@@ -17,8 +17,6 @@ data class Rental(
     var carId: UUID,
     @Indexed
     var renterId: UUID,
-    @Indexed
-    var ownerId: UUID,
     var startDate: LocalDateTime,
     var endDate: LocalDateTime,
     var status: RentalStatus,

@@ -9,6 +9,6 @@ import java.util.UUID
 data class RentalRequestSubmitAction(
     val rentalId: UUID,
     @field:[
-    ValidatedEnum(regex = "ACCEPT|DECLINE")
+    ValidatedEnum(regex = "ACCEPT|DECLINE|CANCEL")
     ] val action: RentalAction,
 )

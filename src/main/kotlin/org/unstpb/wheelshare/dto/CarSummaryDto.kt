@@ -7,4 +7,5 @@ data class CarSummaryDto(
     val brand: String,
     val model: String,
     val price: Int,
+    val mainImageId: UUID?,
 )

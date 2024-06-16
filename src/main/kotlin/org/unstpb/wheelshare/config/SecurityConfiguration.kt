@@ -27,6 +27,12 @@ class SecurityConfiguration(
                     .permitAll()
                     .requestMatchers("/error")
                     .permitAll()
+                    .requestMatchers("/api/v1/images/**")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/insurance-companies")
+                    .permitAll()
+                    .requestMatchers("/api/v1/insurances/offers")
+                    .permitAll()
                     .anyRequest()
                     .fullyAuthenticated()
             }

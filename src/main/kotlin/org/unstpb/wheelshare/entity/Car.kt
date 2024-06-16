@@ -4,14 +4,13 @@ import org.springframework.data.cassandra.core.mapping.Indexed
 import org.springframework.data.cassandra.core.mapping.PrimaryKey
 import org.springframework.data.cassandra.core.mapping.Table
 import org.unstpb.wheelshare.dto.AddNewCarRequest
+import org.unstpb.wheelshare.entity.enums.BodyType
 import org.unstpb.wheelshare.entity.enums.FuelType
+import org.unstpb.wheelshare.entity.enums.InsuranceType
 import java.util.UUID
-
-// TODO: calculate average rating and get reviews on the fly
 
 @Table("cars")
 data class Car(
-    // TODO: add images
     @PrimaryKey
     var id: UUID,
     @Indexed
@@ -22,7 +21,15 @@ data class Car(
     val horsepower: Int,
     var description: String,
     var price: Int,
+    val modelYear: String,
+    val numberOfKilometers: Int,
+    val fuelConsumption: Double,
+    val numDoors: Int,
+    val bodyType: BodyType,
+    val minimumInsuranceType: InsuranceType,
 ) {
+    fun fullName() = "$brand $model"
+
     constructor(ownerId: UUID, newCarRequest: AddNewCarRequest) : this(
         UUID.randomUUID(),
         ownerId,
@@ -32,5 +39,11 @@ data class Car(
         newCarRequest.horsepower,
         newCarRequest.description,
         newCarRequest.price,
+        newCarRequest.modelYear,
+        newCarRequest.numberOfKilometers,
+        newCarRequest.fuelConsumption,
+        newCarRequest.numDoors,
+        newCarRequest.bodyType,
+        newCarRequest.minimumInsuranceType,
     )
 }
