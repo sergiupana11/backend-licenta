@@ -15,18 +15,18 @@ data class Car(
     var id: UUID,
     @Indexed
     var ownerId: UUID,
-    val brand: String,
-    val model: String,
-    val fuelType: FuelType,
-    val horsepower: Int,
+    var brand: String,
+    var model: String,
+    var fuelType: FuelType,
+    var horsepower: Int,
     var description: String,
     var price: Int,
-    val modelYear: String,
-    val numberOfKilometers: Int,
-    val fuelConsumption: Double,
-    val numDoors: Int,
-    val bodyType: BodyType,
-    val minimumInsuranceType: InsuranceType,
+    var modelYear: String,
+    var numberOfKilometers: Int,
+    var fuelConsumption: Double,
+    var numDoors: Int,
+    var bodyType: BodyType,
+    var minimumInsuranceType: InsuranceType,
 ) {
     fun fullName() = "$brand $model"
 

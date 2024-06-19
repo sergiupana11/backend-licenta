@@ -3,10 +3,7 @@ package org.unstpb.wheelshare.service
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.unstpb.wheelshare.dto.AddNewCarRequest
-import org.unstpb.wheelshare.dto.CarDto
-import org.unstpb.wheelshare.dto.CarSummaryDto
-import org.unstpb.wheelshare.dto.RentalDto
+import org.unstpb.wheelshare.dto.*
 import org.unstpb.wheelshare.entity.Car
 import org.unstpb.wheelshare.entity.enums.RentalStatus
 import org.unstpb.wheelshare.exception.CarAlreadyInUseException
@@ -75,7 +72,7 @@ class CarService(
         val owner = userRepository.findById(car.ownerId).orElseThrow { UserNotFoundException() }
         val isOwner = user.id == owner.id
 
-        return CarDto(car, owner.fullName(), isOwner, imageIds)
+        return CarDto(car, owner.fullName(), isOwner, imageIds, owner.phoneNumber)
     }
 
     fun getAvailableCarsToRent(username: String): List<CarSummaryDto> {
@@ -152,6 +149,35 @@ class CarService(
 
             carRepository.deleteById(car.id)
         }
+    }
+
+    fun updateCar(
+        username: String,
+        carId: UUID,
+        updateCarRequest: UpdateCarRequest,
+    ): Car {
+        val user = userRepository.findByEmail(username) ?: throw UserNotFoundException()
+
+        val car = carRepository.findById(carId).orElseThrow { CarNotFoundException() }
+
+        if (car.ownerId != user.id) {
+            throw NoPermissionForActionException()
+        }
+
+        updateCarRequest.brand?.let { car.brand = it }
+        updateCarRequest.model?.let { car.model = it }
+        updateCarRequest.fuelType?.let { car.fuelType = it }
+        updateCarRequest.horsepower?.let { car.horsepower = it }
+        updateCarRequest.description?.let { car.description = it }
+        updateCarRequest.price?.let { car.price = it }
+        updateCarRequest.modelYear?.let { car.modelYear = it }
+        updateCarRequest.numberOfKilometers?.let { car.numberOfKilometers = it }
+        updateCarRequest.fuelConsumption?.let { car.fuelConsumption = it }
+        updateCarRequest.numDoors?.let { car.numDoors = it }
+        updateCarRequest.bodyType?.let { car.bodyType = it }
+        updateCarRequest.minimumInsuranceType?.let { car.minimumInsuranceType = it }
+
+        return carRepository.save(car)
     }
 
     private fun getMainImageId(car: Car): UUID? {

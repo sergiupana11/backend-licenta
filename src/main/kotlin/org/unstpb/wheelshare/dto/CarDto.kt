@@ -10,6 +10,7 @@ data class CarDto(
     var id: UUID,
     var ownerId: UUID,
     var ownerName: String,
+    var ownerPhoneNumber: String,
     val brand: String,
     val model: String,
     val fuelType: FuelType,
@@ -25,10 +26,11 @@ data class CarDto(
     val isOwner: Boolean,
     val imageIds: List<UUID>,
 ) {
-    constructor(car: Car, ownerName: String, isOwner: Boolean, imageIds: List<UUID>) : this(
+    constructor(car: Car, ownerName: String, isOwner: Boolean, imageIds: List<UUID>, ownerPhoneNumber: String) : this(
         car.id,
         car.ownerId,
         ownerName,
+        ownerPhoneNumber,
         car.brand,
         car.model,
         car.fuelType,
