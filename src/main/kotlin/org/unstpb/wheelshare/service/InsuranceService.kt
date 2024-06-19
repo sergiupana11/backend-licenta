@@ -6,13 +6,12 @@ import org.unstpb.wheelshare.dto.InsuranceIdWrapper
 import org.unstpb.wheelshare.dto.InsuranceOfferDto
 import org.unstpb.wheelshare.dto.NewInsuranceRequestDto
 import org.unstpb.wheelshare.entity.Insurance
-import org.unstpb.wheelshare.exception.InsuranceCompanyNotFoundException
-import org.unstpb.wheelshare.exception.InsuranceNotFoundException
-import org.unstpb.wheelshare.exception.InvalidDateException
-import org.unstpb.wheelshare.exception.UserNotFoundException
+import org.unstpb.wheelshare.entity.User
+import org.unstpb.wheelshare.exception.*
 import org.unstpb.wheelshare.repository.InsuranceCompanyRepository
 import org.unstpb.wheelshare.repository.InsuranceRepository
 import org.unstpb.wheelshare.repository.UserRepository
+import java.time.LocalDateTime
 import java.util.*
 
 @Service
@@ -26,6 +25,21 @@ class InsuranceService(
         newInsuranceRequest: NewInsuranceRequestDto,
     ): InsuranceIdWrapper {
         val user = userRepository.findByEmail(username) ?: throw UserNotFoundException()
+
+        insuranceRepository.findByBeneficiaryId(user.id)?.let {
+            if (it.endDate.isBefore(LocalDateTime.now())) {
+                throw UserAlreadyHasValidInsuranceException()
+            }
+        }
+
+        val userHasValidInsurance =
+            insuranceRepository.findAllByBeneficiaryId(user.id).any {
+                it.endDate.isAfter(LocalDateTime.now()) && it.startDate.isBefore(LocalDateTime.now())
+            }
+
+        if (userHasValidInsurance) {
+            throw UserAlreadyHasValidInsuranceException()
+        }
 
         if (newInsuranceRequest.startDate.isAfter(newInsuranceRequest.endDate)) {
             throw InvalidDateException()
@@ -59,21 +73,33 @@ class InsuranceService(
         insuranceId: UUID,
     ): InsuranceDto {
         val user = userRepository.findByEmail(username) ?: throw UserNotFoundException()
-
         val insurance = insuranceRepository.findById(insuranceId).orElseThrow { InsuranceNotFoundException() }
+
+        return insuranceDto(insurance, user)
+    }
+
+    fun getInsuranceForUser(username: String): InsuranceDto {
+        val user = userRepository.findByEmail(username) ?: throw UserNotFoundException()
+        val insurance =
+            insuranceRepository
+                .findAllByBeneficiaryId(user.id).maxByOrNull { it.endDate }
+                ?.also {
+                    if (it.endDate.isBefore(LocalDateTime.now())) {
+                        throw InsuranceNotFoundException()
+                    }
+                } ?: throw InsuranceNotFoundException()
+
+        return insuranceDto(insurance, user)
+    }
+
+    private fun insuranceDto(
+        insurance: Insurance,
+        user: User,
+    ): InsuranceDto {
         val insuranceCompany =
-            insuranceCompanyRepository
-                .findById(insurance.insuranceCompanyId)
+            insuranceCompanyRepository.findById(insurance.insuranceCompanyId)
                 .orElseThrow { InsuranceCompanyNotFoundException() }
 
         return InsuranceDto.of(user, insurance, insuranceCompany)
-    }
-
-    fun getInsuranceForUser(username: String): InsuranceIdWrapper {
-        val user = userRepository.findByEmail(username) ?: throw UserNotFoundException()
-
-        insuranceRepository.findByBeneficiaryId(user.id)?.let {
-            return InsuranceIdWrapper(it.id)
-        } ?: throw InsuranceNotFoundException()
     }
 }

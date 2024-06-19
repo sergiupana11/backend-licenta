@@ -40,8 +40,9 @@ class CarController(
 
     @GetMapping("/{carId}")
     fun getCarData(
+        @RequestHeader(AUTHORIZATION_HEADER) jwt: String,
         @PathVariable carId: UUID,
-    ) = carService.getCarData(carId)
+    ) = carService.getCarData(jwtService.extractUsername(jwt), carId)
 
     @GetMapping
     fun getAvailableCarsToRent(

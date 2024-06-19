@@ -53,7 +53,12 @@ class CarService(
         } ?: throw UserNotFoundException()
     }
 
-    fun getCarData(carId: UUID): CarDto {
+    fun getCarData(
+        username: String,
+        carId: UUID,
+    ): CarDto {
+        val user = userRepository.findByEmail(username) ?: throw UserNotFoundException()
+
         logger.info("Trying to get car with id $carId")
         val car =
             carRepository.findById(carId).orElseThrow {
@@ -67,9 +72,10 @@ class CarService(
                 it.id
             }
 
-        val ownerName = userRepository.findById(car.ownerId).orElseThrow { UserNotFoundException() }.fullName()
+        val owner = userRepository.findById(car.ownerId).orElseThrow { UserNotFoundException() }
+        val isOwner = user.id == owner.id
 
-        return CarDto(car, ownerName, imageIds)
+        return CarDto(car, owner.fullName(), isOwner, imageIds)
     }
 
     fun getAvailableCarsToRent(username: String): List<CarSummaryDto> {

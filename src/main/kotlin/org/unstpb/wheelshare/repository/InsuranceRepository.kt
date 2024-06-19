@@ -6,4 +6,6 @@ import java.util.*
 
 interface InsuranceRepository : CrudRepository<Insurance, UUID> {
     fun findByBeneficiaryId(beneficiaryId: UUID): Insurance?
+
+    fun findAllByBeneficiaryId(beneficiaryId: UUID): List<Insurance>
 }
