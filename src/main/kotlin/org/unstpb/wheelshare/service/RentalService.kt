@@ -84,25 +84,37 @@ class RentalService(
         return RentalIdWrapper(rental.id)
     }
 
-    fun getAllRentalsForUser(username: String): List<RentalDto> {
-        val renter = userRepository.findByEmail(username) ?: throw UserNotFoundException()
+    fun getAllRentalsForUser(username: String): Map<String, List<RentalDto>> {
+        val user = userRepository.findByEmail(username) ?: throw UserNotFoundException()
 
-        val myRentals =
-            rentalRepository.findAllByRenterId(renter.id).map {
+        val outgoingRequests =
+            rentalRepository.findAllByRenterId(user.id).map {
                 logger.info("found rental: $it")
                 val car = carRepository.findById(it.carId).orElseThrow { CarNotFoundException() }
                 val owner = userRepository.findById(car.ownerId).orElseThrow { UserNotFoundException() }
 
-                RentalDto.of(it, car, renter, owner)
+                RentalDto.of(it, car, renter = user, owner)
             }
 
-        return myRentals
+        val currentOwnerCars = carRepository.findAllByOwnerId(user.id)
+
+        val incomingRequests =
+            currentOwnerCars.flatMap { car ->
+                rentalRepository.findAllByCarId(car.id).map { rental ->
+                    val renter = userRepository.findById(rental.renterId).orElseThrow { UserNotFoundException() }
+
+                    RentalDto.of(rental, car, renter, owner = user)
+                }
+            }
+
+        return mapOf("incoming" to incomingRequests, "outgoing" to outgoingRequests)
     }
 
     fun submitRentalAction(
         username: String,
         rentalRequestSubmitAction: RentalRequestSubmitAction,
     ): Rental {
+        logger.info("Received request")
         val user = userRepository.findByEmail(username) ?: throw UserNotFoundException()
 
         val rental =
@@ -117,11 +129,52 @@ class RentalService(
 
         val isOwner = user.id == car.ownerId
 
+        logger.info("checking if the rental period is before the current date")
+        // Check if the rental period is before the current date
+        val currentDate = LocalDateTime.now()
+        if (rental.startDate.isBefore(currentDate)) {
+            throw InvalidActionException()
+        }
+
+        logger.info("checking if  rental overlap if accepting the request")
+        // Check for rental overlap if accepting the request
+        if (rentalRequestSubmitAction.action == RentalAction.ACCEPT) {
+            val overlappingRentals =
+                rentalRepository.findAllByCarId(car.id)
+                    .filter {
+                        it.status == RentalStatus.ACCEPTED &&
+                            it.endDate.isAfter(
+                                rental.startDate,
+                            ) && it.startDate.isBefore(rental.endDate)
+                    }
+
+            if (overlappingRentals.isNotEmpty()) {
+                throw OverlappingRentalsForUserException()
+            }
+        }
+
         if (rentalRequestSubmitAction.action in listOf(RentalAction.ACCEPT, RentalAction.DECLINE) && !isOwner) {
             throw NoPermissionForActionException()
         }
 
         rental.status = updateRentalStatus(rentalRequestSubmitAction.action)
+
+        // Decline overlapping requests if one is accepted
+        if (rentalRequestSubmitAction.action == RentalAction.ACCEPT) {
+            val overlappingRequests =
+                rentalRepository.findAllByCarId(car.id)
+                    .filter {
+                        it.status == RentalStatus.PENDING &&
+                            it.endDate.isAfter(
+                                rental.startDate,
+                            ) && it.startDate.isBefore(rental.endDate)
+                    }
+
+            overlappingRequests.forEach {
+                it.status = RentalStatus.DECLINED
+                rentalRepository.save(it)
+            }
+        }
 
         return rentalRepository.save(rental)
     }
