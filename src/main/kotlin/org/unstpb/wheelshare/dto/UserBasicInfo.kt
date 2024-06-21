@@ -1,12 +1,19 @@
 package org.unstpb.wheelshare.dto
 
-import java.util.UUID
+import org.unstpb.wheelshare.entity.enums.InsuranceLevel
+import java.util.*
 
 data class UserBasicInfo(
     val userId: UUID,
-    val firstName: String,
+    val fullName: String,
+    val dateCreated: Date,
+    val drivingLicenceNumber: String?,
+    val email: String,
+    val phoneNumber: String,
+    val insuranceLevel: InsuranceLevel,
     val totalCars: Int,
     val incomingRequests: Int,
     val outgoingRequests: Int,
+    val averageRating: Double,
     val imageId: UUID?,
 )

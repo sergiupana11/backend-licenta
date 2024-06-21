@@ -7,8 +7,9 @@ import java.util.UUID
 
 data class CreateReviewDto(
     val rentalId: UUID,
+    val title: String,
     @field:[
-    Min(1) Max(5)
+    Min(value = 1) Max(value = 5)
     ] val rating: Int,
     @Size(min = 1, max = 3000)
     val message: String,

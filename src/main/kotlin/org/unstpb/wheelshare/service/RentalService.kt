@@ -8,6 +8,7 @@ import org.unstpb.wheelshare.dto.NewRentalRequest
 import org.unstpb.wheelshare.dto.RentalDto
 import org.unstpb.wheelshare.dto.RentalIdWrapper
 import org.unstpb.wheelshare.dto.RentalRequestSubmitAction
+import org.unstpb.wheelshare.entity.Insurance
 import org.unstpb.wheelshare.entity.Rental
 import org.unstpb.wheelshare.entity.enums.RentalAction
 import org.unstpb.wheelshare.entity.enums.RentalStatus
@@ -52,6 +53,10 @@ class RentalService(
         }
 
         val insurance = insuranceRepository.findById(newRentalRequest.insuranceId).orElseThrow { InsuranceNotFoundException() }
+
+        if (!insuranceCoversRentalPeriod(insurance, newRentalRequest.startDate, newRentalRequest.endDate)) {
+            throw InsurancePeriodDoesNotMatchRentalPeriodException()
+        }
 
         if (car.minimumInsuranceType > insurance.insuranceType) {
             throw InsufficientInsuranceCoverageException()
@@ -198,5 +203,12 @@ class RentalService(
     }.any {
         newRentalRequest.startDate.isBefore(it.endDate) &&
             it.startDate.isBefore(newRentalRequest.endDate)
+    }
+
+    private fun insuranceCoversRentalPeriod(
+        insurance: Insurance,
+        startDate: LocalDateTime,
+        endDate: LocalDateTime,
+    ) {
     }
 }

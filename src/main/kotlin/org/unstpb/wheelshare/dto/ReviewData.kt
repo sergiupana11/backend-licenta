@@ -8,6 +8,7 @@ data class ReviewData(
     val posterName: String,
     val carId: UUID,
     val carName: String,
+    val title: String,
     val text: String,
     val rating: Int,
     val dateCreated: Date,

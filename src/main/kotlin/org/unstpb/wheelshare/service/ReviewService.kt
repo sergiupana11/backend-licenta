@@ -48,6 +48,7 @@ class ReviewService(
             poster.id,
             car.id,
             createReviewDto.message,
+            createReviewDto.title,
             createReviewDto.rating,
             Date.from(Instant.now()),
         ).let {
@@ -60,24 +61,26 @@ class ReviewService(
         val car = carRepository.findById(carId).orElseThrow { CarNotFoundException() }
         var cumulatedRating = 0.0
 
-        reviewRepository.findAllByCarId(carId).map {
-            val poster = userRepository.findById(it.posterId).get()
-            cumulatedRating += it.rating
+        val reviews =
+            reviewRepository.findAllByCarId(carId).map {
+                val poster = userRepository.findById(it.posterId).get()
+                cumulatedRating += it.rating
 
-            ReviewData(
-                it.id,
-                it.posterId,
-                poster.fullName(),
-                car.id,
-                car.fullName(),
-                it.text,
-                it.rating,
-                it.dateCreated,
-            )
-        }.also {
-            val averageRating = cumulatedRating / it.count()
-            return CarReviewDto(it, averageRating)
-        }
+                ReviewData(
+                    it.id,
+                    it.posterId,
+                    poster.fullName(),
+                    car.id,
+                    car.fullName(),
+                    it.title,
+                    it.text,
+                    it.rating,
+                    it.dateCreated,
+                )
+            }
+
+        val averageRating = if (reviews.isNotEmpty()) cumulatedRating / reviews.size else 0.0
+        return CarReviewDto(reviews, averageRating)
     }
 
     fun getReviewsPostedByMe(extractUsername: String): List<ReviewData> {
@@ -92,10 +95,34 @@ class ReviewService(
                 poster.fullName(),
                 car.id,
                 car.fullName(),
+                it.title,
                 it.text,
                 it.rating,
                 it.dateCreated,
             )
+        }
+    }
+
+    fun getReviewsReceivedForMyCars(username: String): List<ReviewData> {
+        val user = userRepository.findByEmail(username) ?: throw UserNotFoundException()
+        val cars = carRepository.findAllByOwnerId(user.id)
+
+        return cars.flatMap { car ->
+            reviewRepository.findAllByCarId(car.id).map {
+                val poster = userRepository.findById(it.posterId).get()
+
+                ReviewData(
+                    it.id,
+                    it.posterId,
+                    poster.fullName(),
+                    car.id,
+                    car.fullName(),
+                    it.title,
+                    it.text,
+                    it.rating,
+                    it.dateCreated,
+                )
+            }
         }
     }
 }

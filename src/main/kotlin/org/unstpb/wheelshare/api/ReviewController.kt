@@ -17,7 +17,7 @@ class ReviewController(
     @PostMapping
     fun createReview(
         @RequestHeader(AUTHORIZATION_HEADER) jwt: String,
-        createReviewDto: CreateReviewDto,
+        @RequestBody createReviewDto: CreateReviewDto,
     ) = reviewService.createReview(jwtService.extractUsername(jwt), createReviewDto)
 
     @GetMapping("/cars/{carId}")
@@ -29,4 +29,9 @@ class ReviewController(
     fun getReviewsPostedByMe(
         @RequestHeader(AUTHORIZATION_HEADER) jwt: String,
     ) = reviewService.getReviewsPostedByMe(jwtService.extractUsername(jwt))
+
+    @GetMapping("/received")
+    fun getReviewsReceivedForMyCars(
+        @RequestHeader(AUTHORIZATION_HEADER) jwt: String,
+    ) = reviewService.getReviewsReceivedForMyCars(jwtService.extractUsername(jwt))
 }

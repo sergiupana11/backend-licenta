@@ -16,6 +16,7 @@ data class Review(
     var posterId: UUID,
     @Indexed
     var carId: UUID,
+    var title: String,
     var text: String,
     var rating: Int,
     var dateCreated: Date,
