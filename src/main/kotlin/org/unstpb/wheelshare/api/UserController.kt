@@ -1,7 +1,6 @@
 package org.unstpb.wheelshare.api
 
 import jakarta.validation.Valid
-import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.unstpb.wheelshare.dto.AuthenticationRequest
 import org.unstpb.wheelshare.dto.AuthenticationResponse
@@ -12,8 +11,7 @@ import org.unstpb.wheelshare.utils.AUTHORIZATION_HEADER
 
 @RestController
 @RequestMapping("/api/v1/users")
-@Validated
-@CrossOrigin(origins = ["http://localhost:3000"], maxAge = 3600)
+@CrossOrigin(origins = ["http://localhost:3000", "https://localhost:3000"], maxAge = 3600)
 class UserController(
     private val authenticationService: AuthenticationService,
     private val userService: UserService,
@@ -24,7 +22,6 @@ class UserController(
     ): AuthenticationResponse = authenticationService.authenticate(authRequest)
 
     @PostMapping
-    @Validated
     fun register(
         @RequestBody @Valid registerRequest: RegisterRequest,
     ): AuthenticationResponse = authenticationService.register(registerRequest)
@@ -32,5 +29,5 @@ class UserController(
     @GetMapping
     fun getUserInfo(
         @RequestHeader(AUTHORIZATION_HEADER) jwt: String,
-    ) = userService.getUserBasicInfo(jwt)
+    ) = userService.getUserInfo(jwt)
 }
